@@ -25,13 +25,8 @@ RUN yum -y install http://build.openhpc.community/OpenHPC:/1.3/CentOS_7/x86_64/o
  && yum -y install ohpc-gnu7-perf-tools lmod-defaults-gnu7-openmpi3-ohpc \
  && yum -y install ohpc-gnu7-serial-libs ohpc-gnu7-io-libs ohpc-gnu7-python-libs ohpc-gnu7-runtimes ohpc-gnu7-mpich-parallel-libs ohpc-gnu7-openmpi3-parallel-libs
 
-#RUN mkdir /var/run/sshd
-
 RUN groupadd -g 1000 $user \
     && useradd -u 1000 -g 1000 -m -s /bin/bash $user
-
-#RUN usermod -aG wheel $user \
-# && sed -i -e 's/^\(%wheel\s\+.\+\)/#\1/gi' /etc/sudoers
 
 RUN echo "$user:ohpc" | chpasswd 
 
@@ -40,20 +35,11 @@ RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
 RUN sed -ri 's/account    required     pam_nologin.so/#account    required     pam_nologin.so/' /etc/pam.d/login
 RUN sed -ri 's/account    required     pam_nologin.so/#account    required     pam_nologin.so/' /etc/pam.d/sshd
 
-#RUN timedatectl set-timezone Asia/Seoul
-
 RUN echo "$user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-
-#COPY munge.key /etc/munge/munge.key
-#COPY slurm.conf /etc/slurm/slurm.conf
-
-# Set timezone
 ARG TIMEZONE=Asia/Seoul
 RUN ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
 
-
-#VOLUME [ "/sys/fs/cgroup", "/etc/munge", "/etc/slurm" ]
 VOLUME [ "/sys/fs/cgroup" ]
 
 COPY docker-ohpc-entrypoint.sh /usr/local/bin/docker-ohpc-entrypoint.sh
